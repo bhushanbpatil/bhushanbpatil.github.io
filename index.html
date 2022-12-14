@@ -1,0 +1,130 @@
+<html>
+<head>
+    <title>CSCI-610 -- Final Exam</title>
+    
+    <!-- include vertex shaders -->
+
+    <script id="wireframe-V" type="x-shader/x-vertex">
+        #version 300 es
+        precision mediump float;
+        in vec3 aVertexPosition;
+        in vec2 aUV;    // u-v coordinates
+
+        // outputs
+    	out vec2 theUV;  // pass uv's onto the fragment shader
+
+       uniform mat4 matrix;	
+       uniform mat4 normalMatrix;
+
+       //--------------------------------------------
+       out highp vec3 vLighting;
+       //--------------------------------------------
+        
+        void main()
+        {
+        	//--------------------------------------------
+        	// Apply lighting effect
+
+		      highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
+		      highp vec3 directionalLightColor = vec3(1, 1, 1);
+		      highp vec3 directionalVector = normalize(vec3(1.85, 2.8, 0.75));
+
+		      highp vec4 transformedNormal = normalMatrix * vec4(aVertexPosition, 1.0);
+
+		      highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
+		      vLighting = ambientLight + (directionalLightColor * directional);
+        	//--------------------------------------------
+        	// pass uvs to fragment shader
+        	theUV = aUV;
+            gl_Position = matrix * vec4(aVertexPosition, 1);
+        }
+    </script>
+
+     <!-- wireframe fragment Shaders -->
+     <script id="wireframe-F" type="x-shader/x-fragment">
+         #version 300 es
+         precision lowp float;
+
+         // uvs passed in from vertex shader
+         in vec2 theUV;
+         
+         // the texture to use
+         uniform sampler2D theTexture;
+
+         
+         
+
+         //---------------------------------------------------
+         in highp vec3 vLighting;
+
+         //---------------------------------------------------
+
+         // Color that is the result of this shader
+         out vec4 fragColor;
+
+         void main(void) {
+
+         //--------------------------------------------------------
+         //--------------------------------------------------------
+         	vec4 texel = texture(theTexture, theUV);
+         	//texel.xyz *= vBrightness;
+            //fragColor = texture(theTexture, theUV);
+
+            fragColor = vec4(texel.rgb * vLighting, texel.a);
+         }
+
+     </script>
+
+     
+     <!-- Matrix library and code for standard transformations -->
+     <script type="text/javascript" src="gl-matrix-min.js"></script>
+    
+    <!-- include the main final functions -->
+    <script type="text/javascript" src="./finalMain.js"></script>
+    
+    <!-- shape functions -->
+    <script type="text/javascript" src="./cgIShape.js"></script>
+    <script type="text/javascript" src="./myShapes-min.js"></script>
+    
+    <!-- keyboard functions -->
+    <script type="text/javascript" src="./event.js"></script>
+    
+    <!-- texture images -->
+    <img id="world-texture" src="2_no_clouds_8k.jpg" style="display: none;"> </img>
+    <img id="world-texture" src="1_earth_16k.jpg" style="display: none;"> </img>
+
+  <script type="text/javascript">
+    // Call init once the webpage has loaded
+    window.onload = init;
+  </script>
+</head>
+
+<body>
+  <h1>CSCI-610: Final Exam Image</h1>
+  <table>
+      <tr>
+          <td><canvas id="webgl-canvas" width="500" height="500">
+            Your browser does not support the HTML5 canvas element.
+          </canvas></td>
+          
+          <td>
+              <h3>Controls</h3>
+              
+              <table border="1">
+              <tbody>
+              <tr>
+              <td> </td>
+              <td>List any keyboard controls here</td>
+              </tr>
+              </tbody>
+              </table>
+              
+          </td>
+      </tr>
+  </table>
+  
+  
+
+</body>
+</html>
+
